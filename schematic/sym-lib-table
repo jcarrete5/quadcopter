@@ -1,3 +1,3 @@
 (sym_lib_table
-  (lib (name "quadcopter")(type "KiCad")(uri "${KIPRJMOD}/quadcopter.kicad_sym")(options "")(descr ""))
+  (lib (name "RASPBERRYPI4_4GB")(type "KiCad")(uri "${KIPRJMOD}/symbols/RASPBERRYPI4_4GB.kicad_sym")(options "")(descr ""))
 )
