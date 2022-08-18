@@ -1,0 +1,6 @@
+# Backups
+*-backups/
+*.bak
+
+# Project local settings
+*.kicad_prl
