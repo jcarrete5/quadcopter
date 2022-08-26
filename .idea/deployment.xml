@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="Remote Development" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="Raspberry Pi (06bcd6e6-84eb-4884-87de-746e3995f768)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="quadcopter" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/schematic" />
+            <excludedPath local="true" path="$PROJECT_DIR$/flight-controller/cmake-build-debug-raspberry-pi" />
+            <excludedPath local="true" path="$PROJECT_DIR$/.cmake" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
