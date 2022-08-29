@@ -1,12 +1,11 @@
 #include <iostream>
+#include <iomanip>
 
-#include <sys/utsname.h>
+#include "driver/mpu6050.h"
 
-
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    utsname u{};
-    uname(&u);
-    std::cout << u.sysname << " " << u.machine << "\n";
+int main()
+{
+    MPU6050 mpu{"/dev/i2c-1"};
+    std::cout << "WHO_AM_I -> " << std::showbase << std::setbase(16) << mpu.who_am_i() << '\n';
     return 0;
 }

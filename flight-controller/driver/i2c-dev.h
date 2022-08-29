@@ -1,0 +1,48 @@
+#ifndef FLIGHT_CONTROLLER_I2C_DEV_H
+#define FLIGHT_CONTROLLER_I2C_DEV_H
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+class I2CFunctionNotSupported : public std::exception {
+public:
+    explicit I2CFunctionNotSupported(const std::string& func = "")
+            : msg{func + ": Specific I2C functionality is not supported by the platform"} { }
+
+    [[nodiscard]] const char* what() const noexcept override { return msg.c_str(); }
+
+private:
+    std::string msg;
+};
+
+/**
+ * @brief I2C device driver abstraction.
+ *
+ * Manages the I2C bus file descriptor resource.
+ */
+class I2CDev {
+public:
+    explicit I2CDev(const std::string& i2c_bus, uint16_t address);
+    ~I2CDev();
+    I2CDev(const I2CDev& other);
+    I2CDev(I2CDev&& other) = default;
+    I2CDev& operator=(I2CDev other);
+    I2CDev& operator=(I2CDev&& other) = default;
+
+    friend void swap(I2CDev& first, I2CDev& second)
+    {
+        using std::swap;
+        swap(first.bus_fd, second.bus_fd);
+        swap(first.address, second.address);
+    }
+
+    [[nodiscard]] std::vector<std::uint8_t> read(std::uint8_t start_reg,
+            std::uint16_t length = 1) const;
+
+private:
+    int bus_fd;             ///< I2C bus file descriptor.
+    std::uint16_t address;  ///< I2C device address.
+};
+
+#endif  // FLIGHT_CONTROLLER_I2C_DEV_H

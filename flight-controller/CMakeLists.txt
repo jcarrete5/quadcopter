@@ -5,4 +5,4 @@ project(flight-controller
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(flight-control "main.cpp")
+add_executable(flight-control "main.cpp" "driver/i2c-dev.cpp" "driver/mpu6050.cpp")
