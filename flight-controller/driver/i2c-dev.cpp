@@ -86,6 +86,7 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
     std::array<i2c_msg, 2> msgs{
             i2c_msg{
                     .addr = address,
+                    .flags = 0,
                     .len = 1,
                     .buf = &start_reg,
             },
@@ -111,6 +112,7 @@ void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
     std::array<i2c_msg, 2> msgs = {
             i2c_msg{
                     .addr = address,
+                    .flags = 0,
                     .len = 1,
                     .buf = &reg
             },
@@ -134,6 +136,7 @@ void I2CDev::write(std::uint8_t reg, const std::vector<std::uint8_t>& buffer) co
     std::array<i2c_msg, 2> msgs = {
             i2c_msg{
                     .addr = address,
+                    .flags = 0,
                     .len = 1,
                     .buf = &reg
             },
