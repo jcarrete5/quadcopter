@@ -15,7 +15,7 @@
 #include "../error.h"
 
 I2CDev::I2CDev(const std::string& i2c_bus, uint16_t address)
-        : bus_fd{open(i2c_bus.c_str(), O_RDWR)}, address{address}
+    : bus_fd{open(i2c_bus.c_str(), O_RDWR)}, address{address}
 {
     check_syscall(bus_fd);
 
@@ -34,7 +34,7 @@ I2CDev::I2CDev(const std::string& i2c_bus, uint16_t address)
 }
 
 I2CDev::I2CDev(const I2CDev& other)
-        : bus_fd{dup(other.bus_fd)}, address{other.address}
+    : bus_fd{dup(other.bus_fd)}, address{other.address}
 {
     check_syscall(bus_fd);
 }
@@ -55,23 +55,23 @@ std::uint8_t I2CDev::read(std::uint8_t reg) const
 {
     std::uint8_t result;
     std::array<i2c_msg, 2> msgs{
-            i2c_msg{
-                    .addr = address,
-                    .flags = 0,
-                    .len = 1,
-                    .buf = &reg,
-            },
-            i2c_msg{
-                    .addr = address,
-                    .flags = I2C_M_RD,
-                    .len = 1,
-                    .buf = &result,
-            }
+        i2c_msg{
+            .addr = address,
+            .flags = 0,
+            .len = 1,
+            .buf = &reg,
+        },
+        i2c_msg{
+            .addr = address,
+            .flags = I2C_M_RD,
+            .len = 1,
+            .buf = &result,
+        }
     };
 
     i2c_rdwr_ioctl_data data{
-            .msgs = msgs.data(),
-            .nmsgs = msgs.size(),
+        .msgs = msgs.data(),
+        .nmsgs = msgs.size(),
     };
     check_syscall(ioctl(bus_fd, I2C_RDWR, &data));
 
@@ -84,23 +84,23 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
 
     std::vector<std::uint8_t> result(length);
     std::array<i2c_msg, 2> msgs{
-            i2c_msg{
-                    .addr = address,
-                    .flags = 0,
-                    .len = 1,
-                    .buf = &start_reg,
-            },
-            i2c_msg{
-                    .addr = address,
-                    .flags = I2C_M_RD,
-                    .len = length,
-                    .buf = result.data(),
-            }
+        i2c_msg{
+            .addr = address,
+            .flags = 0,
+            .len = 1,
+            .buf = &start_reg,
+        },
+        i2c_msg{
+            .addr = address,
+            .flags = I2C_M_RD,
+            .len = length,
+            .buf = result.data(),
+        }
     };
 
     i2c_rdwr_ioctl_data data{
-            .msgs = msgs.data(),
-            .nmsgs = msgs.size(),
+        .msgs = msgs.data(),
+        .nmsgs = msgs.size(),
     };
     check_syscall(ioctl(bus_fd, I2C_RDWR, &data));
 
@@ -110,23 +110,23 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
 void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
 {
     std::array<i2c_msg, 2> msgs = {
-            i2c_msg{
-                    .addr = address,
-                    .flags = 0,
-                    .len = 1,
-                    .buf = &reg
-            },
-            i2c_msg{
-                    .addr = address,
-                    .flags = I2C_M_NOSTART,
-                    .len = 1,
-                    .buf = &byte
-            },
+        i2c_msg{
+            .addr = address,
+            .flags = 0,
+            .len = 1,
+            .buf = &reg
+        },
+        i2c_msg{
+            .addr = address,
+            .flags = I2C_M_NOSTART,
+            .len = 1,
+            .buf = &byte
+        },
     };
 
     i2c_rdwr_ioctl_data data{
-            .msgs = msgs.data(),
-            .nmsgs = msgs.size(),
+        .msgs = msgs.data(),
+        .nmsgs = msgs.size(),
     };
     check_syscall(ioctl(bus_fd, I2C_RDWR, &data));
 }
@@ -134,23 +134,23 @@ void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
 void I2CDev::write(std::uint8_t reg, const std::vector<std::uint8_t>& buffer) const
 {
     std::array<i2c_msg, 2> msgs = {
-            i2c_msg{
-                    .addr = address,
-                    .flags = 0,
-                    .len = 1,
-                    .buf = &reg
-            },
-            i2c_msg{
-                    .addr = address,
-                    .flags = I2C_M_NOSTART,
-                    .len = static_cast<std::uint16_t>(buffer.size() + 1),
-                    .buf = const_cast<std::uint8_t*>(buffer.data())
-            },
+        i2c_msg{
+            .addr = address,
+            .flags = 0,
+            .len = 1,
+            .buf = &reg
+        },
+        i2c_msg{
+            .addr = address,
+            .flags = I2C_M_NOSTART,
+            .len = static_cast<std::uint16_t>(buffer.size() + 1),
+            .buf = const_cast<std::uint8_t*>(buffer.data())
+        },
     };
 
     i2c_rdwr_ioctl_data data{
-            .msgs = msgs.data(),
-            .nmsgs = msgs.size(),
+        .msgs = msgs.data(),
+        .nmsgs = msgs.size(),
     };
     check_syscall(ioctl(bus_fd, I2C_RDWR, &data));
 }
