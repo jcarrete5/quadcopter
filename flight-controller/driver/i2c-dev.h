@@ -28,7 +28,7 @@ public:
 
     [[nodiscard]] std::uint8_t read(std::uint8_t reg) const;
     [[nodiscard]] std::vector<std::uint8_t> read(std::uint8_t start_reg,
-            std::uint16_t length) const;
+        std::uint16_t length) const;
     void write(std::uint8_t reg, std::uint8_t byte) const;
     void write(std::uint8_t reg, const std::vector<std::uint8_t>& buffer) const;
 
