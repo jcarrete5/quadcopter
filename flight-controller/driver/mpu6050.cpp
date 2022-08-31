@@ -91,7 +91,7 @@ enum class [[maybe_unused]] Register : std::uint8_t {
 };
 
 MPU6050::MPU6050(const std::string& i2c_bus, bool ad0_low)
-        : device{i2c_bus, static_cast<std::uint16_t>(ad0_low ? 0x68 : 0x69)}
+    : device{i2c_bus, static_cast<std::uint16_t>(ad0_low ? 0x68 : 0x69)}
 {
 }
 
@@ -126,7 +126,7 @@ bool MPU6050::self_test()
     double ft_za = za_test == 0 ? 0 : 4096 * 0.34 * std::pow(0.92 / 0.34, (za_test - 1) / 30);
 
     device.write(static_cast<std::uint8_t>(Register::gyro_config),
-            static_cast<uint8_t>(0b11100000));
+        static_cast<uint8_t>(0b11100000));
     device.write(static_cast<std::uint8_t>(Register::accel_config), static_cast<uint8_t>(0xf0));
 
     return true;

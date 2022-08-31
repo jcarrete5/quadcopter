@@ -20,6 +20,4 @@ private:
     I2CDev device;
 };
 
-
-
 #endif /* !defined MPU6050_H */
