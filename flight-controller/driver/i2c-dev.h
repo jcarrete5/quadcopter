@@ -5,17 +5,6 @@
 #include <string>
 #include <vector>
 
-class I2CFunctionNotSupported : public std::exception {
-public:
-    explicit I2CFunctionNotSupported(const std::string& func = "")
-            : msg{func + ": Specific I2C functionality is not supported by the platform"} { }
-
-    [[nodiscard]] const char* what() const noexcept override { return msg.c_str(); }
-
-private:
-    std::string msg;
-};
-
 /**
  * @brief I2C device driver abstraction.
  *

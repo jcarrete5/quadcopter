@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstdint>
 #include <string>
+#include <stdexcept>
 #include <vector>
 
 #include <unistd.h>
@@ -23,12 +24,12 @@ I2CDev::I2CDev(const std::string& i2c_bus, uint16_t address)
 
     // Need I2C transfer functionality
     if ((funcs & I2C_FUNC_I2C) == 0) {
-        throw I2CFunctionNotSupported{"I2C_FUNC_I2C"};
+        throw std::runtime_error{"I2C_FUNC_I2C functionality not supported"};
     }
 
     // Need NOSTART functionality to avoid a repeated start during write
     if ((funcs & I2C_FUNC_NOSTART) == 0) {
-        throw I2CFunctionNotSupported{"I2C_FUNC_NOSTART"};
+        throw std::runtime_error{"I2C_FUNC_NOSTART functionality not supported"};
     }
 }
 
@@ -85,6 +86,7 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
     std::array<i2c_msg, 2> msgs{
             i2c_msg{
                     .addr = address,
+                    .flags = 0,
                     .len = 1,
                     .buf = &start_reg,
             },
@@ -110,6 +112,7 @@ void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
     std::array<i2c_msg, 2> msgs = {
             i2c_msg{
                     .addr = address,
+                    .flags = 0,
                     .len = 1,
                     .buf = &reg
             },
@@ -133,6 +136,7 @@ void I2CDev::write(std::uint8_t reg, const std::vector<std::uint8_t>& buffer) co
     std::array<i2c_msg, 2> msgs = {
             i2c_msg{
                     .addr = address,
+                    .flags = 0,
                     .len = 1,
                     .buf = &reg
             },
