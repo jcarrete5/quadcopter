@@ -2,6 +2,7 @@
 #include <cassert>
 #include <cstdint>
 #include <string>
+#include <stdexcept>
 #include <vector>
 
 #include <unistd.h>
@@ -23,12 +24,12 @@ I2CDev::I2CDev(const std::string& i2c_bus, uint16_t address)
 
     // Need I2C transfer functionality
     if ((funcs & I2C_FUNC_I2C) == 0) {
-        throw I2CFunctionNotSupported{"I2C_FUNC_I2C"};
+        throw std::runtime_error{"I2C_FUNC_I2C functionality not supported"};
     }
 
     // Need NOSTART functionality to avoid a repeated start during write
     if ((funcs & I2C_FUNC_NOSTART) == 0) {
-        throw I2CFunctionNotSupported{"I2C_FUNC_NOSTART"};
+        throw std::runtime_error{"I2C_FUNC_NOSTART functionality not supported"};
     }
 }
 
