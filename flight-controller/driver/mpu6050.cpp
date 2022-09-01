@@ -4,13 +4,30 @@
 
 #include "mpu6050.h"
 
-/// MPU60X0 register names mapping
+/**
+ * @brief MPU60X0 register names mappings.
+ *
+ * See MPU-6000-Register-Map1.pdf and 'MPU HW Offset Registers 1.2.pdf'
+ * in Google Drive for more information about the registers.
+ */
 enum class [[maybe_unused]] Register : std::uint8_t {
+    xa_offs_usrh = 6,
+    xa_offs_usrl,
+    ya_offs_usrh,
+    ya_offs_usrl,
+    za_offs_usrh,
+    za_offs_usrl,
     self_test_x = 13,
     self_test_y,
     self_test_z,
     self_test_a,
-    smplrt_div = 25,
+    xg_offs_usrh = 19,
+    xg_offs_usrl,
+    yg_offs_usrh,
+    yg_offs_usrl,
+    zg_offs_usrh,
+    zg_offs_usrl,
+    smprt_div = 25,
     config,
     gyro_config,
     accel_config,
