@@ -4,6 +4,9 @@
 
 #include "mpu6050.h"
 
+static constexpr std::uint16_t mpu_address{0x68};  ///< MPU6050 I2C address when AD0 is driven LOW.
+static constexpr std::uint16_t mpu_address_alt{0x69};  ///< MPU6050 I2C address when AD0 is driven HIGH.
+
 /**
  * @brief MPU60X0 register names mappings.
  *
@@ -108,7 +111,7 @@ enum class [[maybe_unused]] Register : std::uint8_t {
 };
 
 MPU6050::MPU6050(const std::string& i2c_bus, bool ad0_low)
-    : device{i2c_bus, static_cast<std::uint16_t>(ad0_low ? 0x68 : 0x69)}
+    : device{i2c_bus, ad0_low ? mpu_address : mpu_address_alt}
 {
 }
 
