@@ -2,15 +2,19 @@
 #include <cassert>
 #include <cstdint>
 #include <limits>
+#include <map>
+#include <mutex>
+#include <sstream>
 #include <string>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
-#include <unistd.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
-#include <linux/i2c-dev.h>
 #include <linux/i2c.h>
+#include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 #include "i2c-dev.h"
 #include "../error.h"
@@ -22,10 +26,9 @@
  * @param address Device I2C address to communicate with.
  */
 I2CDev::I2CDev(const std::string& i2c_bus, std::uint16_t address)
-    : bus_fd{open(i2c_bus.c_str(), O_RDWR)}, address{address}
+    : device_lock{lock_device({i2c_bus, address})}, bus_fd{check_syscall(open(i2c_bus.c_str(), O_RDWR))},
+      address{address}
 {
-    check_syscall(bus_fd);
-
     unsigned long funcs{};
     check_syscall(ioctl(bus_fd, I2C_FUNCS, &funcs));
 
@@ -33,23 +36,6 @@ I2CDev::I2CDev(const std::string& i2c_bus, std::uint16_t address)
     if ((funcs & I2C_FUNC_I2C) == 0) {
         throw std::runtime_error{"I2C_FUNC_I2C functionality not supported"};
     }
-
-    // Need NOSTART functionality to avoid a repeated start during write
-    if ((funcs & I2C_FUNC_NOSTART) == 0) {
-        throw std::runtime_error{"I2C_FUNC_NOSTART functionality not supported"};
-    }
-}
-
-I2CDev::I2CDev(const I2CDev& other)
-    : bus_fd{dup(other.bus_fd)}, address{other.address}
-{
-    check_syscall(bus_fd);
-}
-
-I2CDev& I2CDev::operator=(I2CDev other)
-{
-    swap(*this, other);
-    return *this;
 }
 
 I2CDev::~I2CDev()
@@ -137,18 +123,13 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
  */
 void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
 {
+    std::array<std::uint8_t, 2> buffer = {reg, byte};
     std::array<i2c_msg, 2> msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
-            .len = 1,
-            .buf = &reg
-        },
-        i2c_msg{
-            .addr = address,
-            .flags = I2C_M_NOSTART,
-            .len = 1,
-            .buf = &byte
+            .len = buffer.size(),
+            .buf = buffer.data()
         },
     };
 
@@ -178,25 +159,21 @@ void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
  * @param reg Device register to start writing data into.
  * @param buffer Buffer containing bytes to write.
  */
-void I2CDev::write(std::uint8_t reg, const std::vector<std::uint8_t>& buffer) const
+void I2CDev::write(std::uint8_t reg, std::vector<std::uint8_t> buffer) const
 {
     // buffer must not be empty
     assert(!buffer.empty());
+
     // buffer must not exceed std::uint16_t maximum to be used as a length in an i2c_msg
+    buffer.insert(buffer.cbegin(), reg);
     assert(buffer.size() <= std::numeric_limits<std::uint16_t>::max());
 
     std::array<i2c_msg, 2> msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
-            .len = 1,
-            .buf = &reg
-        },
-        i2c_msg{
-            .addr = address,
-            .flags = I2C_M_NOSTART,
             .len = static_cast<std::uint16_t>(buffer.size()),
-            .buf = const_cast<std::uint8_t*>(buffer.data())  // The data is copied in the kernel so this is safe
+            .buf = buffer.data()
         },
     };
 
@@ -205,4 +182,28 @@ void I2CDev::write(std::uint8_t reg, const std::vector<std::uint8_t>& buffer) co
         .nmsgs = msgs.size(),
     };
     check_syscall(ioctl(bus_fd, I2C_RDWR, &data));
+}
+
+/**
+ * @brief Acquire a lock for the unique i2c bus and i2c address combination.
+ *
+ * Used to ensure exclusive access to an I2C device.
+ *
+ * @param dev_id Tuple of I2C bus path and device address.
+ * @return A lock for the I2C device.
+ */
+std::unique_lock<std::mutex> I2CDev::lock_device(const I2CDevID& dev_id)
+{
+    static std::map<I2CDevID, std::mutex> device_mutex_map{};
+    static std::mutex map_mutex{};
+
+    std::lock_guard map_lock{map_mutex};
+    auto ret{device_mutex_map.try_emplace(dev_id)};
+    std::unique_lock lock{ret.first->second, std::try_to_lock};
+    if (!lock.owns_lock()) {
+        std::stringstream ss{"I2C address "};
+        ss << std::get<1>(dev_id) << " already in use on bus " << std::get<0>(dev_id);
+        throw std::runtime_error{ss.str()};
+    }
+    return lock;
 }
