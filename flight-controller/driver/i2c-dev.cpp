@@ -33,11 +33,6 @@ I2CDev::I2CDev(const std::string& i2c_bus, std::uint16_t address)
     if ((funcs & I2C_FUNC_I2C) == 0) {
         throw std::runtime_error{"I2C_FUNC_I2C functionality not supported"};
     }
-
-    // Need NOSTART functionality to avoid a repeated start during write
-    if ((funcs & I2C_FUNC_NOSTART) == 0) {
-        throw std::runtime_error{"I2C_FUNC_NOSTART functionality not supported"};
-    }
 }
 
 I2CDev::I2CDev(const I2CDev& other)
@@ -137,18 +132,13 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
  */
 void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
 {
+    std::array<std::uint8_t, 2> buffer = {reg, byte};
     std::array<i2c_msg, 2> msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
-            .len = 1,
-            .buf = &reg
-        },
-        i2c_msg{
-            .addr = address,
-            .flags = I2C_M_NOSTART,
-            .len = 1,
-            .buf = &byte
+            .len = buffer.size(),
+            .buf = buffer.data()
         },
     };
 
@@ -178,25 +168,21 @@ void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
  * @param reg Device register to start writing data into.
  * @param buffer Buffer containing bytes to write.
  */
-void I2CDev::write(std::uint8_t reg, const std::vector<std::uint8_t>& buffer) const
+void I2CDev::write(std::uint8_t reg, std::vector<std::uint8_t> buffer) const
 {
     // buffer must not be empty
     assert(!buffer.empty());
+
     // buffer must not exceed std::uint16_t maximum to be used as a length in an i2c_msg
+    buffer.insert(buffer.cbegin(), reg);
     assert(buffer.size() <= std::numeric_limits<std::uint16_t>::max());
 
     std::array<i2c_msg, 2> msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
-            .len = 1,
-            .buf = &reg
-        },
-        i2c_msg{
-            .addr = address,
-            .flags = I2C_M_NOSTART,
             .len = static_cast<std::uint16_t>(buffer.size()),
-            .buf = const_cast<std::uint8_t*>(buffer.data())  // The data is copied in the kernel so this is safe
+            .buf = buffer.data()
         },
     };
 
