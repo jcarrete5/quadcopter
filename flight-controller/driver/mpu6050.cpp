@@ -1,11 +1,7 @@
 #include <cmath>
 #include <cstdint>
-#include <string>
 
 #include "mpu6050.h"
-
-static constexpr std::uint16_t mpu_address{0x68};  ///< MPU6050 I2C address when AD0 is driven LOW.
-static constexpr std::uint16_t mpu_address_alt{0x69};  ///< MPU6050 I2C address when AD0 is driven HIGH.
 
 /**
  * @brief MPU60X0 register names mappings.
@@ -110,9 +106,13 @@ enum class [[maybe_unused]] Register : std::uint8_t {
     who_am_i,
 };
 
-MPU6050::MPU6050(const std::string& i2c_bus, bool ad0_low)
-    : device{i2c_bus, ad0_low ? mpu_address : mpu_address_alt}
+MPU6050::MPU6050(const Config& config)
+    : device{config.bus_path, config.i2c_address}
 {
+    // Confirm the device is an MPU6050
+    if (who_am_i() != MPU6050::i2c_address) {
+        throw std::runtime_error{"I2C device is not an MPU6050"};
+    }
 }
 
 /**
@@ -123,7 +123,7 @@ MPU6050::MPU6050(const std::string& i2c_bus, bool ad0_low)
  *
  * @returns True if the self-test passes, otherwise false.
  */
-bool MPU6050::self_test()
+bool MPU6050::self_test() const
 {
     std::vector<uint8_t> data = device.read(static_cast<std::uint8_t>(Register::self_test_x), 4);
     std::uint8_t r0 = data[0];  // SELF_TEST_X
@@ -157,7 +157,7 @@ bool MPU6050::self_test()
  *
  * @returns The data contained within the WHO_AM_I register on the MPU.
  */
-int MPU6050::who_am_i()
+int MPU6050::who_am_i() const
 {
     return device.read(static_cast<std::uint8_t>(Register::who_am_i));
 }
