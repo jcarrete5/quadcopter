@@ -17,7 +17,7 @@
 #include <unistd.h>
 
 #include "i2c-dev.h"
-#include "../error.h"
+#include "utils/error.h"
 
 /**
  * @brief Construct a I2C device.
