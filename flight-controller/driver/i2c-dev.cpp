@@ -36,6 +36,13 @@ I2CDev::I2CDev(const std::string& i2c_bus, std::uint16_t address)
     if ((funcs & I2C_FUNC_I2C) == 0) {
         throw std::runtime_error{"I2C_FUNC_I2C functionality not supported"};
     }
+
+    if (!device_exists()) {
+        std::ostringstream ss{};
+        ss << "I/O error occurred while trying to communicate with device address " << address << " on bus " << i2c_bus
+           << ". Check that a device with that address exists and is connected to the bus.";
+        throw std::runtime_error{ss.str()};
+    }
 }
 
 I2CDev::~I2CDev()
@@ -206,4 +213,34 @@ std::unique_lock<std::mutex> I2CDev::lock_device(const I2CDevID& dev_id)
         throw std::runtime_error{ss.str()};
     }
     return lock;
+}
+
+/**
+ * @brief Check if the specified I2C device exists.
+ *
+ * @return true if the device exists, otherwise false.
+ */
+bool I2CDev::device_exists() const
+{
+    std::array<i2c_msg, 1> msgs = {
+        i2c_msg{
+            .addr = address,
+            .flags = 0,
+            .len = 0,
+            .buf = nullptr
+        },
+    };
+
+    i2c_rdwr_ioctl_data data{
+        .msgs = msgs.data(),
+        .nmsgs = msgs.size(),
+    };
+
+    try {
+        check_syscall(ioctl(bus_fd, I2C_RDWR, &data));
+    } catch (std::system_error& e) {
+        return false;
+    }
+
+    return true;
 }
