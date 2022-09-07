@@ -22,6 +22,8 @@ public:
     I2CDev(I2CDev&& other) = default;
     I2CDev& operator=(I2CDev&& other) = default;
 
+    [[nodiscard]] bool device_exists() const;
+
     [[nodiscard]] std::uint8_t read(std::uint8_t reg) const;
     [[nodiscard]] std::vector<std::uint8_t> read(std::uint8_t start_reg,
         std::uint16_t length) const;
@@ -36,6 +38,7 @@ private:
     std::uint16_t address;  ///< I2C device address.
 
     static std::unique_lock<std::mutex> lock_device(const I2CDevID& dev_id);
+
 };
 
 #endif  // FLIGHT_CONTROLLER_I2C_DEV_H
