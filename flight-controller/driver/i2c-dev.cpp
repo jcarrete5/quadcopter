@@ -60,7 +60,7 @@ I2CDev::~I2CDev()
 std::uint8_t I2CDev::read(std::uint8_t reg) const
 {
     std::uint8_t result;
-    std::array<i2c_msg, 2> msgs{
+    std::array msgs{
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -98,7 +98,7 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
     assert(length > 0);  // Cannot read 0 bytes
 
     std::vector<std::uint8_t> result(length);
-    std::array<i2c_msg, 2> msgs{
+    std::array msgs{
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -130,8 +130,8 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
  */
 void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
 {
-    std::array<std::uint8_t, 2> buffer = {reg, byte};
-    std::array<i2c_msg, 2> msgs = {
+    std::array buffer = {reg, byte};
+    std::array msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -175,7 +175,7 @@ void I2CDev::write(std::uint8_t reg, std::vector<std::uint8_t> buffer) const
     buffer.insert(buffer.cbegin(), reg);
     assert(buffer.size() <= std::numeric_limits<std::uint16_t>::max());
 
-    std::array<i2c_msg, 2> msgs = {
+    std::array msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -222,7 +222,7 @@ std::unique_lock<std::mutex> I2CDev::lock_device(const I2CDevID& dev_id)
  */
 bool I2CDev::device_exists() const
 {
-    std::array<i2c_msg, 1> msgs = {
+    std::array msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
