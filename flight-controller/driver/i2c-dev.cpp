@@ -36,6 +36,13 @@ I2CDev::I2CDev(const std::string& i2c_bus, std::uint16_t address)
     if ((funcs & I2C_FUNC_I2C) == 0) {
         throw std::runtime_error{"I2C_FUNC_I2C functionality not supported"};
     }
+
+    if (!device_exists()) {
+        std::ostringstream ss{};
+        ss << "I/O error occurred while trying to communicate with device address " << address << " on bus " << i2c_bus
+           << ". Check that a device with that address exists and is connected to the bus.";
+        throw std::runtime_error{ss.str()};
+    }
 }
 
 I2CDev::~I2CDev()
@@ -53,7 +60,7 @@ I2CDev::~I2CDev()
 std::uint8_t I2CDev::read(std::uint8_t reg) const
 {
     std::uint8_t result;
-    std::array<i2c_msg, 2> msgs{
+    std::array msgs{
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -91,7 +98,7 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
     assert(length > 0);  // Cannot read 0 bytes
 
     std::vector<std::uint8_t> result(length);
-    std::array<i2c_msg, 2> msgs{
+    std::array msgs{
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -123,8 +130,8 @@ std::vector<std::uint8_t> I2CDev::read(std::uint8_t start_reg, std::uint16_t len
  */
 void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
 {
-    std::array<std::uint8_t, 2> buffer = {reg, byte};
-    std::array<i2c_msg, 2> msgs = {
+    std::array buffer = {reg, byte};
+    std::array msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -168,7 +175,7 @@ void I2CDev::write(std::uint8_t reg, std::vector<std::uint8_t> buffer) const
     buffer.insert(buffer.cbegin(), reg);
     assert(buffer.size() <= std::numeric_limits<std::uint16_t>::max());
 
-    std::array<i2c_msg, 2> msgs = {
+    std::array msgs = {
         i2c_msg{
             .addr = address,
             .flags = 0,
@@ -201,9 +208,33 @@ std::unique_lock<std::mutex> I2CDev::lock_device(const I2CDevID& dev_id)
     auto ret{device_mutex_map.try_emplace(dev_id)};
     std::unique_lock lock{ret.first->second, std::try_to_lock};
     if (!lock.owns_lock()) {
-        std::stringstream ss{"I2C address "};
-        ss << std::get<1>(dev_id) << " already in use on bus " << std::get<0>(dev_id);
+        std::ostringstream ss{};
+        ss << "I2C address " << std::get<1>(dev_id) << " already in use on bus " << std::get<0>(dev_id);
         throw std::runtime_error{ss.str()};
     }
     return lock;
+}
+
+/**
+ * @brief Check if the specified I2C device exists.
+ *
+ * @return true if the device exists, otherwise false.
+ */
+bool I2CDev::device_exists() const
+{
+    std::array msgs = {
+        i2c_msg{
+            .addr = address,
+            .flags = 0,
+            .len = 0,
+            .buf = nullptr
+        },
+    };
+
+    i2c_rdwr_ioctl_data data{
+        .msgs = msgs.data(),
+        .nmsgs = msgs.size(),
+    };
+
+    return ioctl(bus_fd, I2C_RDWR, &data) != -1;
 }
