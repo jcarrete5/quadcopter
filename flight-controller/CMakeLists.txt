@@ -2,12 +2,14 @@ project(flight-controller
         VERSION 0.1.0
         LANGUAGES CXX)
 
+find_package(PkgConfig 0.29.2 REQUIRED)
 find_package(spdlog 1.8.1 REQUIRED)
+pkg_check_modules(gpiod REQUIRED libgpiodcxx>=1.6.2 IMPORTED_TARGET)
 
 add_executable(flight-control "main.cpp" "driver/i2c-dev.cpp" "driver/mpu6050.cpp")
 target_link_libraries(flight-control spdlog::spdlog)
+target_link_libraries(flight-control PkgConfig::gpiod)
 
 if (BUILD_TESTING)
     add_subdirectory(tests)
 endif()
-
