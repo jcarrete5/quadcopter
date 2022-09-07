@@ -236,11 +236,5 @@ bool I2CDev::device_exists() const
         .nmsgs = msgs.size(),
     };
 
-    try {
-        check_syscall(ioctl(bus_fd, I2C_RDWR, &data));
-    } catch (std::system_error& e) {
-        return false;
-    }
-
-    return true;
+    return ioctl(bus_fd, I2C_RDWR, &data) != -1;
 }
