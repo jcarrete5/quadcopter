@@ -208,8 +208,8 @@ std::unique_lock<std::mutex> I2CDev::lock_device(const I2CDevID& dev_id)
     auto ret{device_mutex_map.try_emplace(dev_id)};
     std::unique_lock lock{ret.first->second, std::try_to_lock};
     if (!lock.owns_lock()) {
-        std::stringstream ss{"I2C address "};
-        ss << std::get<1>(dev_id) << " already in use on bus " << std::get<0>(dev_id);
+        std::ostringstream ss{};
+        ss << "I2C address " << std::get<1>(dev_id) << " already in use on bus " << std::get<0>(dev_id);
         throw std::runtime_error{ss.str()};
     }
     return lock;
