@@ -92,8 +92,7 @@ std::uint8_t I2CDev::read(std::uint8_t reg) const
 
 /**
  * @brief Read consecutive bytes starting from a register.
- *
- * This function will fail when trying to read 0 bytes.
+ * @pre length must not be zero.
  *
  * @param start_reg Device register to start reading bytes from.
  * @param length Number of consecutive bytes to read.
@@ -155,8 +154,7 @@ void I2CDev::write(std::uint8_t reg, std::uint8_t byte) const
 
 /**
  * @brief Write a buffer of bytes to consecutive registers.
- *
- * The buffer must not be empty and it's size must fit within a std::uint16_t.
+ * @pre buffer must not be empty and it's size must fit within a std::uint16_t.
  *
  * Each byte from buffer is written to consecutive registers on the device
  * starting with the specified register.
