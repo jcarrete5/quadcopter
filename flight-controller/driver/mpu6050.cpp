@@ -1,7 +1,13 @@
 #include <cmath>
 #include <cstdint>
+#include <iostream>
+
+#include <gpiod.hpp>
+#include <iomanip>
 
 #include "mpu6050.h"
+#include "utils/defer.h"
+#include "utils/error.h"
 
 /**
  * @brief MPU60X0 register names mappings.
@@ -107,11 +113,28 @@ enum class [[maybe_unused]] Register : std::uint8_t {
 };
 
 MPU6050::MPU6050(const Config& config)
-    : device{config.bus_path, config.i2c_address}
+    : device{config.bus_path, config.i2c_address},
+      event_loop_interrupted{false},
+      event_thread{[this, &config]() { event_loop(config); }}
 {
-    // Confirm the device is an MPU6050
     if (who_am_i() != MPU6050::i2c_address) {
         throw std::runtime_error{"I2C device is not an MPU6050"};
+    }
+
+    check_pthread_call(pthread_setname_np(event_thread.native_handle(), "MPU6050_event"));
+}
+
+MPU6050::~MPU6050()
+{
+    event_loop_interrupted = true;
+    try {
+        std::cerr << "MPU6050_event joining\n";
+        event_thread.join();
+        std::cerr << "MPU6050_event joined\n";
+    } catch (std::exception& e) {
+        std::cerr << "error joining MPU6050::event_thread: " << e.what() << '\n';
+    } catch (...) {
+        std::cerr << "error joining MPU6050::event_thread\n";
     }
 }
 
@@ -125,29 +148,30 @@ MPU6050::MPU6050(const Config& config)
  */
 bool MPU6050::self_test() const
 {
-    std::vector<uint8_t> data = device.read(static_cast<std::uint8_t>(Register::self_test_x), 4);
-    std::uint8_t r0 = data[0];  // SELF_TEST_X
-    std::uint8_t r1 = data[1];  // SELF_TEST_Y
-    std::uint8_t r2 = data[2];  // SELF_TEST_Z
-    std::uint8_t r3 = data[3];  // SELF_TEST_A
+    std::vector<std::uint8_t> data{
+        device.read(static_cast<std::uint8_t>(Register::self_test_x), 4)
+    };
+    std::uint8_t r0{data[0]};  // SELF_TEST_X
+    std::uint8_t r1{data[1]};  // SELF_TEST_Y
+    std::uint8_t r2{data[2]};  // SELF_TEST_Z
+    std::uint8_t r3{data[3]};  // SELF_TEST_A
 
-    std::uint8_t xg_test = r0 & 0x1f;
-    std::uint8_t yg_test = r1 & 0x1f;
-    std::uint8_t zg_test = r2 & 0x1f;
-    std::uint8_t xa_test = (r0 & 0xe0) >> 3 | (r3 & 0x30) >> 4;
-    std::uint8_t ya_test = (r1 & 0xe0) >> 3 | (r3 & 0x0c) >> 2;
-    std::uint8_t za_test = (r2 & 0xe0) >> 3 | (r3 & 0x03) >> 0;
+    auto xg_test{static_cast<std::uint8_t>(r0 & 0x1f)};
+    auto yg_test{static_cast<std::uint8_t>(r1 & 0x1f)};
+    auto zg_test{static_cast<std::uint8_t>(r2 & 0x1f)};
+    auto xa_test{static_cast<std::uint8_t>((r0 & 0xe0) >> 3 | (r3 & 0x30) >> 4)};
+    auto ya_test{static_cast<std::uint8_t>((r1 & 0xe0) >> 3 | (r3 & 0x0c) >> 2)};
+    auto za_test{static_cast<std::uint8_t>((r2 & 0xe0) >> 3 | (r3 & 0x03) >> 0)};
 
-    double ft_xg = xg_test == 0 ? 0 : 25 * 131 * std::pow(1.046, xg_test - 1);
-    double ft_yg = yg_test == 0 ? 0 : -25 * 131 * std::pow(1.046, yg_test - 1);
-    double ft_zg = zg_test == 0 ? 0 : 25 * 131 * std::pow(1.046, zg_test - 1);
-    double ft_xa = xa_test == 0 ? 0 : 4096 * 0.34 * std::pow(0.92 / 0.34, (xa_test - 1) / 30);
-    double ft_ya = ya_test == 0 ? 0 : 4096 * 0.34 * std::pow(0.92 / 0.34, (ya_test - 1) / 30);
-    double ft_za = za_test == 0 ? 0 : 4096 * 0.34 * std::pow(0.92 / 0.34, (za_test - 1) / 30);
+    double ft_xg{xg_test == 0 ? 0 : 25 * 131 * std::pow(1.046, xg_test - 1)};
+    double ft_yg{yg_test == 0 ? 0 : -25 * 131 * std::pow(1.046, yg_test - 1)};
+    double ft_zg{zg_test == 0 ? 0 : 25 * 131 * std::pow(1.046, zg_test - 1)};
+    double ft_xa{xa_test == 0 ? 0 : 4096 * 0.34 * std::pow(0.92 / 0.34, (xa_test - 1) / 30)};
+    double ft_ya{ya_test == 0 ? 0 : 4096 * 0.34 * std::pow(0.92 / 0.34, (ya_test - 1) / 30)};
+    double ft_za{za_test == 0 ? 0 : 4096 * 0.34 * std::pow(0.92 / 0.34, (za_test - 1) / 30)};
 
-    device.write(static_cast<std::uint8_t>(Register::gyro_config),
-        static_cast<uint8_t>(0b11100000));
-    device.write(static_cast<std::uint8_t>(Register::accel_config), static_cast<uint8_t>(0xf0));
+    device.write(static_cast<std::uint8_t>(Register::gyro_config), static_cast<std::uint8_t>(0b11100000));
+    device.write(static_cast<std::uint8_t>(Register::accel_config), static_cast<std::uint8_t>(0xf0));
 
     return true;
 }
@@ -160,4 +184,31 @@ bool MPU6050::self_test() const
 int MPU6050::who_am_i() const
 {
     return device.read(static_cast<std::uint8_t>(Register::who_am_i));
+}
+
+void MPU6050::event_loop(const Config& config)
+{
+    using namespace std::chrono;
+
+    gpiod::chip chip{config.gpio_path, gpiod::chip::OPEN_BY_PATH};
+    gpiod::line line{chip.get_line(config.interrupt_line)};
+    Defer cleanup_line{[&line]() { line.release(); }};
+    line.request(
+        {"flight-controller",  // TODO probably replace with some constant name of the executable
+         gpiod::line_request::EVENT_RISING_EDGE,
+         gpiod::line_request::FLAG_BIAS_DISABLE
+        }
+    );
+
+    while (!event_loop_interrupted) {
+        const bool timed_out{!line.event_wait(config.event_wait_timeout)};
+        if (timed_out) {
+            continue;
+        }
+
+        gpiod::line_event ev{line.event_read()};
+        std::cerr << std::dec << "Event detected: [" << duration_cast<microseconds>(ev.timestamp).count()
+                  << "] " << ev.event_type << '\n';
+        // TODO Request sensor data from I2C bus, buffer it, and clear interrupt status
+    }
 }
