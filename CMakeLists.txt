@@ -8,4 +8,7 @@ set(CMAKE_MODULE_PATH cmake/)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options(-Wall -Wextra -pedantic)
 
+include(CTest)
+find_package(GTest 1.11)
+
 add_subdirectory(flight-controller)
