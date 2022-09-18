@@ -1,0 +1,8 @@
+enable_testing()
+
+add_executable(kalman_filter_test kalman_filter_test.cpp kalman_filter_basic_test.cpp)
+target_link_libraries(kalman_filter_test KalmanFilter)
+target_link_libraries(kalman_filter_test GTest::gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(kalman_filter_test)
