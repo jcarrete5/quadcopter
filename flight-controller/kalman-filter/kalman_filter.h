@@ -1,4 +1,6 @@
 #include <Eigen/Core>
+#include <Eigen/LU>
+#include <cstddef>
 #include <tuple>
 
 template<size_t n_states, size_t n_measurements, size_t n_control_inputs>
@@ -14,15 +16,15 @@ public:
     using VectorU = Eigen::Vector<double, n_control_inputs>;
 
     using StateEstimateVector = VectorX;
-    using StateMeasurement = VectorZ;
+    using StateMeasurementVector = VectorZ;
     using StateTransitionMatrix = MatrixXX;
     using ObservationMatrix = MatrixZX;
     using ControlMatrix = MatrixXU;
     using InputVector = VectorU;
-    using EstimateUncertaintyVector = MatrixXX;
+    using EstimateUncertaintyMatrix = MatrixXX;
     using ProcessNoiseUncertaintyMatrix = MatrixXX;
     using MeasurementUncertaintyMatrix = MatrixZZ;
-    using KalmanGain = MatrixXZ;
+    using KalmanGainMatrix = MatrixXZ;
 
     DiscreteKalmanFilter(
             const StateTransitionMatrix& F,
@@ -34,31 +36,43 @@ public:
         : F_(F), G_(G), H_(H), Q_(Q), R_(R)
     {}
 
-    void initialize(const StateEstimateVector& X0, const EstimateUncertaintyVector& P0)
+    void initialize(const StateEstimateVector& x0, const EstimateUncertaintyMatrix& P0, const InputVector& u0)
     {
-        X_ = X0;
+        x_ = x0;
         P_ = P0;
+        predict(u0);
     }
 
-    std::tuple<StateEstimateVector, EstimateUncertaintyVector> update(const StateMeasurement& Z)
+    void predict(const InputVector& u)
+    {
+        x_ = F_ * x_ + G_ * u;
+        P_ = F_ * P_ * F_.transpose() + Q_;
+    }
+
+    void update(const StateMeasurementVector& z)
     {
         const MatrixXX I = MatrixXX::Identity();
-        KalmanGain K = P_ * H_.transpose() * (H_ * P_ * H_.transpose() + R_).inverse();
-        X_ = X_ + K * (Z - H_ * X_);
+        KalmanGainMatrix K = (P_ * H_.transpose()) * (H_ * P_ * H_.transpose() + R_).inverse();
+        x_ = x_ + K * (z - H_ * x_);
         P_ = (I - K * H_) * P_ * (I - K * H_).transpose() + K * R_ * K.transpose();
-        return {X_, P_};
     }
 
-    std::tuple<StateEstimateVector, EstimateUncertaintyVector> predict(const InputVector& u)
+    std::tuple<StateEstimateVector, EstimateUncertaintyMatrix> current_estimate() const
     {
-        StateEstimateVector X_prediction = F_ * X_ + G_ * u;
-        EstimateUncertaintyVector P_prediction = F_ * P_ * F_.transpose() + Q_;
-        return {X_prediction, P_prediction};
+        return {x_, P_};
+    }
+
+    std::tuple<StateEstimateVector, EstimateUncertaintyMatrix> update_and_predict(const StateMeasurementVector& Z, const InputVector& u)
+    {
+        update(Z);
+        auto estimate = current_estimate();
+        predict(u);
+        return estimate;
     }
 
 private:
-    StateEstimateVector X_;
-    EstimateUncertaintyVector P_;
+    StateEstimateVector x_;
+    EstimateUncertaintyMatrix P_;
 
     StateTransitionMatrix F_;
     ControlMatrix G_;
