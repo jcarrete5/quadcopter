@@ -7,6 +7,8 @@
     </sourceRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/.cmake" />
+      <file path="$PROJECT_DIR$/cmake-build-debug-raspberry-pi" />
+      <file path="$PROJECT_DIR$/cmake-build-release-raspberry-pi" />
       <file path="$PROJECT_DIR$/doc" />
       <file path="$PROJECT_DIR$/schematic" />
     </excludeRoots>
