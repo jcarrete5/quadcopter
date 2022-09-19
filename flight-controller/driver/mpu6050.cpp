@@ -226,17 +226,17 @@ void MPU6050::event_loop(const Config& config)
         gpiod::line_event event{line.event_read()};
         std::cerr << std::dec << "Event detected: [" << event.timestamp.count() << "] " << event.event_type << '\n';
 
-        // Read and clear interrupt status on MPU
-        std::uint8_t interrupt_status{device.read(static_cast<std::uint8_t>(Register::int_status))};
-        if (interrupt_status != 0x01) {
-            std::cerr << "Skipping non-data-ready interrupt: " << std::hex << std::showbase
-                      << static_cast<int>(interrupt_status) << '\n';
-            std::cerr << std::dec;
-            continue;
-        }
-
-        // Save sensor data
         try {
+            // Read and clear interrupt status on MPU
+            std::uint8_t interrupt_status{device.read(static_cast<std::uint8_t>(Register::int_status))};
+            if (interrupt_status != 0x01) {
+                std::cerr << "Skipping non-data-ready interrupt: " << std::hex << std::showbase
+                          << static_cast<int>(interrupt_status) << '\n';
+                std::cerr << std::dec;
+                continue;
+            }
+
+            // Save sensor data
             std::vector<std::uint8_t> raw_data = device.read(static_cast<std::uint8_t>(Register::accel_xout_h), 14);
             push_sample(
                 {
