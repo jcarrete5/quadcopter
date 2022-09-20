@@ -27,7 +27,7 @@
  * @param address Device I2C address to communicate with.
  */
 I2CDev::I2CDev(const std::string& i2c_bus, std::uint16_t address)
-    : device_lock{lock_device({i2c_bus, address})}, bus_fd{check_syscall(open(i2c_bus.c_str(), O_RDWR))},
+    : device_lock{lock_device({i2c_bus, address})}, bus_fd{i2c_bus, O_RDWR},
       address{address}
 {
     unsigned long funcs{};
