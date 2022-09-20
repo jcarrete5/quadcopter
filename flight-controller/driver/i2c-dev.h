@@ -39,7 +39,7 @@ public:
     [[nodiscard]] std::vector<std::uint8_t> read(std::uint8_t start_reg,
         std::uint16_t length) const;
     void write(std::uint8_t reg, std::uint8_t byte) const;
-    void write(std::uint8_t reg, std::vector<uint8_t> buffer) const;
+    void write(std::uint8_t reg, std::vector<std::uint8_t> buffer) const;
 
 private:
     /// Device lock to ensure exclusive access to the device.
