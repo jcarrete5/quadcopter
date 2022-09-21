@@ -1,13 +1,13 @@
-#include "file-descriptor.h"
-#include "utils/error.h"
-
 #include <iostream>
 #include <string>
 
 #include <fcntl.h>
 #include <unistd.h>
 
-file_descriptor::file_descriptor(const std::string& path_name, int flags, mode_t mode) noexcept
+#include "file-descriptor.h"
+#include "utils/error.h"
+
+FileDescriptor::FileDescriptor(const std::string& path_name, int flags, mode_t mode) noexcept
 {
     try {
         check_syscall(raw_descriptor_ = open(path_name.c_str(), flags, mode));
@@ -19,20 +19,20 @@ file_descriptor::file_descriptor(const std::string& path_name, int flags, mode_t
     }
 }
 
-file_descriptor::file_descriptor(file_descriptor&& other)
+FileDescriptor::FileDescriptor(FileDescriptor&& other)
     : raw_descriptor_(other.raw_descriptor_)
 {
     other.raw_descriptor_ = no_value;
 }
 
-file_descriptor& file_descriptor::operator=(file_descriptor&& other)
+FileDescriptor& FileDescriptor::operator=(FileDescriptor&& other)
 {
     raw_descriptor_ = other.raw_descriptor_;
     other.raw_descriptor_ = no_value;
     return *this;
 }
 
-file_descriptor::~file_descriptor() noexcept
+FileDescriptor::~FileDescriptor() noexcept
 {
     try {
         check_syscall(close(raw_descriptor_));
@@ -41,7 +41,7 @@ file_descriptor::~file_descriptor() noexcept
     }
 }
 
-file_descriptor::operator file_descriptor_type() const
+FileDescriptor::operator raw_descriptor_type() const
 {
     return raw_descriptor_;
 }

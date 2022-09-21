@@ -1,14 +1,14 @@
 #ifndef FLIGHT_CONTROLLER_I2C_DEV_H
 #define FLIGHT_CONTROLLER_I2C_DEV_H
 
-#include "utils/file-descriptor.h"
-
 #include <cstdint>
 #include <map>
 #include <mutex>
 #include <string>
 #include <tuple>
 #include <vector>
+
+#include "utils/file-descriptor.h"
 
 /**
  * @brief I2C device driver abstraction.
@@ -47,7 +47,7 @@ private:
     /// Device lock to ensure exclusive access to the device.
     std::unique_lock<std::mutex> device_lock;
     /// I2C bus file descriptor.
-    file_descriptor bus_fd;
+    FileDescriptor bus_fd;
     /// I2C device address.
     std::uint16_t address;
 
