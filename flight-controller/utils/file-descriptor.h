@@ -19,10 +19,10 @@ public:
 
     FileDescriptor(const FileDescriptor& other) = delete;
     FileDescriptor& operator=(const FileDescriptor& other) = delete;
-    FileDescriptor(FileDescriptor&& other);
-    FileDescriptor& operator=(FileDescriptor&& other);
+    FileDescriptor(FileDescriptor&& other) noexcept;
+    FileDescriptor& operator=(FileDescriptor&& other) noexcept;
 
-    operator raw_descriptor_type() const;
+    operator raw_descriptor_type() const; // NOLINT(google-explicit-constructor)
 
 private:
     static constexpr raw_descriptor_type no_value = -1;
