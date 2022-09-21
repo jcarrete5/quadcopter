@@ -46,17 +46,6 @@ I2CDev::I2CDev(const std::string& i2c_bus, std::uint16_t address)
     }
 }
 
-I2CDev::~I2CDev()
-{
-    try {
-        check_syscall(close(bus_fd));
-    } catch (std::system_error& e) {
-        std::cerr << "failed to close I2C bus file descriptor: " << e.what() << '\n';
-    } catch (...) {
-        std::cerr << "failed to close I2C bus file descriptor\n";
-    }
-}
-
 /**
  * @brief Read a byte from a device register.
  *
