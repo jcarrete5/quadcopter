@@ -61,7 +61,8 @@ private:
 
 TEST_F(RocketAltitudeFixture, Filter)
 {
-    kf.initialize(initial_state, initial_estimate_uncertainty, initial_input);
+    kf.initialize(initial_state, initial_estimate_uncertainty);
+    kf.predict(initial_input);
 
     std::tuple<KalmanFilter::StateEstimateVector, KalmanFilter::EstimateUncertaintyMatrix> estimate;
     for (size_t sample_i = 0; sample_i < measurements.size(); sample_i++)

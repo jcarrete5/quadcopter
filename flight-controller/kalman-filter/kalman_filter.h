@@ -36,11 +36,10 @@ public:
         : F_(F), G_(G), H_(H), Q_(Q), R_(R)
     {}
 
-    void initialize(const StateEstimateVector& x0, const EstimateUncertaintyMatrix& P0, const InputVector& u0)
+    void initialize(const StateEstimateVector& x0, const EstimateUncertaintyMatrix& P0)
     {
         x_ = x0;
         P_ = P0;
-        predict(u0);
     }
 
     void predict(const InputVector& u)
@@ -60,14 +59,6 @@ public:
     std::tuple<StateEstimateVector, EstimateUncertaintyMatrix> current_estimate() const
     {
         return {x_, P_};
-    }
-
-    std::tuple<StateEstimateVector, EstimateUncertaintyMatrix> update_and_predict(const StateMeasurementVector& Z, const InputVector& u)
-    {
-        update(Z);
-        auto estimate = current_estimate();
-        predict(u);
-        return estimate;
     }
 
 private:
