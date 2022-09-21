@@ -19,13 +19,13 @@ FileDescriptor::FileDescriptor(const std::string& path_name, int flags, mode_t m
     }
 }
 
-FileDescriptor::FileDescriptor(FileDescriptor&& other)
+FileDescriptor::FileDescriptor(FileDescriptor&& other) noexcept
     : raw_descriptor_(other.raw_descriptor_)
 {
     other.raw_descriptor_ = no_value;
 }
 
-FileDescriptor& FileDescriptor::operator=(FileDescriptor&& other)
+FileDescriptor& FileDescriptor::operator=(FileDescriptor&& other) noexcept
 {
     raw_descriptor_ = other.raw_descriptor_;
     other.raw_descriptor_ = no_value;
@@ -45,4 +45,3 @@ FileDescriptor::operator raw_descriptor_type() const
 {
     return raw_descriptor_;
 }
-
