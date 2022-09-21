@@ -29,7 +29,6 @@ public:
     using I2CDevID = std::tuple<std::string, std::uint16_t>;
 
     explicit I2CDev(const std::string& i2c_bus, uint16_t address);
-    ~I2CDev();
     I2CDev(const I2CDev& other) = delete;
     I2CDev& operator=(const I2CDev& other) = delete;
     I2CDev(I2CDev&& other) = default;
