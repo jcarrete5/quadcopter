@@ -42,7 +42,7 @@ protected:
     std::vector<KalmanFilter::InputVector> inputs;
 
     RocketAltitudeFixture() :
-        kf{F, G, H, Q, R}
+        kf{F, G, Q}
     {
         const size_t n_samples = LENGTH(measurement_data_);
         for (size_t i = 0; i < n_samples; i++)

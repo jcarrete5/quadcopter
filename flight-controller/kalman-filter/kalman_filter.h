@@ -29,11 +29,9 @@ public:
     DiscreteKalmanFilter(
             const StateTransitionMatrix& F,
             const ControlMatrix& G,
-            const ObservationMatrix& H,
-            const ProcessNoiseUncertaintyMatrix& Q,
-            const MeasurementUncertaintyMatrix& R
+            const ProcessNoiseUncertaintyMatrix& Q
     )
-        : F_(F), G_(G), H_(H), Q_(Q), R_(R)
+        : F_(F), G_(G), Q_(Q)
     {}
 
     void initialize(const StateEstimateVector& x0, const EstimateUncertaintyMatrix& P0)
@@ -48,12 +46,12 @@ public:
         P_ = F_ * P_ * F_.transpose() + Q_;
     }
 
-    void update(const StateMeasurementVector& z)
+    void update(const StateMeasurementVector& z, const ObservationMatrix& H, const MeasurementUncertaintyMatrix& R)
     {
         const MatrixXX I = MatrixXX::Identity();
-        KalmanGainMatrix K = (P_ * H_.transpose()) * (H_ * P_ * H_.transpose() + R_).inverse();
-        x_ = x_ + K * (z - H_ * x_);
-        P_ = (I - K * H_) * P_ * (I - K * H_).transpose() + K * R_ * K.transpose();
+        KalmanGainMatrix K = (P_ * H.transpose()) * (H * P_ * H.transpose() + R).inverse();
+        x_ = x_ + K * (z - H * x_);
+        P_ = (I - K * H) * P_ * (I - K * H).transpose() + K * R * K.transpose();
     }
 
     std::tuple<StateEstimateVector, EstimateUncertaintyMatrix> current_estimate() const
@@ -67,7 +65,5 @@ private:
 
     StateTransitionMatrix F_;
     ControlMatrix G_;
-    ObservationMatrix H_;
     ProcessNoiseUncertaintyMatrix Q_;
-    MeasurementUncertaintyMatrix R_;
 };
