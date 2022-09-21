@@ -42,7 +42,7 @@ protected:
     std::vector<KalmanFilter::InputVector> inputs;
 
     RocketAltitudeFixture() :
-        kf{F, G, Q}
+        kf{F, G, Q, initial_state, initial_estimate_uncertainty}
     {
         const size_t n_samples = LENGTH(measurement_data_);
         for (size_t i = 0; i < n_samples; i++)
@@ -61,16 +61,14 @@ private:
 
 TEST_F(RocketAltitudeFixture, Filter)
 {
-    kf.initialize(initial_state, initial_estimate_uncertainty);
     kf.predict(initial_input);
-
     std::tuple<KalmanFilter::StateEstimateVector, KalmanFilter::EstimateUncertaintyMatrix> estimate;
     for (size_t sample_i = 0; sample_i < measurements.size(); sample_i++)
     {
         std::cout << "measurement: " << measurements.at(sample_i) << '\n';
         std::cout << "input: " << inputs.at(sample_i) << '\n';
 
-        kf.update(measurements.at(sample_i));
+        kf.update(measurements.at(sample_i), H, R);
         estimate = kf.current_estimate();
 
         std::cout << "estimate: " << std::get<0>(estimate)  << '\n';

@@ -29,16 +29,12 @@ public:
     DiscreteKalmanFilter(
             const StateTransitionMatrix& F,
             const ControlMatrix& G,
-            const ProcessNoiseUncertaintyMatrix& Q
+            const ProcessNoiseUncertaintyMatrix& Q,
+            const StateEstimateVector& x0,
+            const EstimateUncertaintyMatrix& P0
     )
-        : F_(F), G_(G), Q_(Q)
+        : F_(F), G_(G), Q_(Q), x_(x0), P_(P0)
     {}
-
-    void initialize(const StateEstimateVector& x0, const EstimateUncertaintyMatrix& P0)
-    {
-        x_ = x0;
-        P_ = P0;
-    }
 
     void predict(const InputVector& u)
     {
