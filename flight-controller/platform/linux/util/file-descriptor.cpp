@@ -7,7 +7,7 @@
 #include "file-descriptor.h"
 #include "utils/error.h"
 
-FileDescriptor::FileDescriptor(const std::string& path_name, int flags, mode_t mode) noexcept
+FileDescriptor::FileDescriptor(const std::string& path_name, int flags, mode_t mode)
 {
     try {
         check_syscall(raw_descriptor_ = open(path_name.c_str(), flags, mode));
@@ -16,6 +16,7 @@ FileDescriptor::FileDescriptor(const std::string& path_name, int flags, mode_t m
         std::cerr << "  path_name: " << path_name << '\n'
                   << "  flags: " << flags << '\n'
                   << "  mode: " << mode << '\n';
+        throw;
     }
 }
 
