@@ -1,5 +1,5 @@
-#ifndef UTIL_FILE_DESCRIPTOR_H
-#define UTIL_FILE_DESCRIPTOR_H
+#ifndef PLATFORM_LINUX_UTIL_FILE_DESCRIPTOR_H
+#define PLATFORM_LINUX_UTIL_FILE_DESCRIPTOR_H
 
 #include <string>
 
@@ -30,4 +30,4 @@ private:
     raw_descriptor_type raw_descriptor_;
 };
 
-#endif// UTIL_FILE_DESCRIPTOR_H
+#endif  // PLATFORM_LINUX_UTIL_FILE_DESCRIPTOR_H
