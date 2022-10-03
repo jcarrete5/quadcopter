@@ -14,7 +14,7 @@ class FileDescriptor {
 public:
     using raw_descriptor_type = int;
 
-    FileDescriptor(const std::string& path_name, int flags, mode_t mode = 0) noexcept;
+    FileDescriptor(const std::string& path_name, int flags, mode_t mode = 0);
     ~FileDescriptor() noexcept;
 
     FileDescriptor(const FileDescriptor& other) = delete;
