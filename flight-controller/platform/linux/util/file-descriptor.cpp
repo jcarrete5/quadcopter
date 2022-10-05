@@ -7,6 +7,15 @@
 #include "file-descriptor.h"
 #include "utils/error.h"
 
+/**
+ * @brief Open a new file descriptor.
+ *
+ * See open(2) for more information.
+ *
+ * @param path_name Path to open.
+ * @param flags flags to open the file with.
+ * @param mode mode to open the file with.
+ */
 FileDescriptor::FileDescriptor(const std::string& path_name, int flags, mode_t mode)
 {
     try {
