@@ -44,6 +44,11 @@ FileDescriptor& FileDescriptor::operator=(FileDescriptor&& other) noexcept
 
 FileDescriptor::~FileDescriptor() noexcept
 {
+    if (raw_descriptor_ == no_value) {
+        // No need to clean up an empty file descriptor
+        return;
+    }
+
     try {
         check_syscall(close(raw_descriptor_));
     } catch (std::system_error& e) {
