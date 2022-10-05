@@ -4,11 +4,15 @@
 #include <string>
 
 /**
- * @brief RAII-style file descriptor wrapper
+ * @brief RAII-style file descriptor wrapper.
  *
- * `open` is called on construction
- * `close` is called on destruction
- * Allows for implicit conversion to `int`
+ * The contained file descriptor is closed upon destruction. An instance of this
+ * type can be passed to Linux system calls where a file descriptor is required.
+ *
+ * @invariant Always contains either a valid file descriptor or the sentinel
+ * @c FileDescriptor::no_value after being moved from. A valid file descriptor
+ * is a file descriptor which refers to an active file description in the
+ * kernel.
  */
 class FileDescriptor {
 public:
