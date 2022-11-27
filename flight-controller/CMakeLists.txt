@@ -6,3 +6,8 @@ find_package(spdlog 1.8.1 REQUIRED)
 
 add_executable(flight-control "main.cpp" "driver/i2c-dev.cpp" "driver/mpu6050.cpp")
 target_link_libraries(flight-control spdlog::spdlog)
+
+if (BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
+
