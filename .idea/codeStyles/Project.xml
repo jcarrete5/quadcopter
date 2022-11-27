@@ -1,5 +1,8 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
+    <CMakeCodeStyleSettings>
+      <option name="FORCE_COMMANDS_CASE" value="1" />
+    </CMakeCodeStyleSettings>
     <Objective-C>
       <option name="FUNCTION_BRACE_PLACEMENT" value="5" />
       <option name="FUNCTION_NON_TOP_AFTER_RETURN_TYPE_WRAP" value="0" />
@@ -42,7 +45,6 @@
       </rules>
     </Objective-C-extensions>
     <codeStyleSettings language="CMake">
-      <option name="ALIGN_MULTILINE_PARAMETERS_IN_CALLS" value="true" />
       <indentOptions>
         <option name="CONTINUATION_INDENT_SIZE" value="4" />
       </indentOptions>
@@ -52,6 +54,7 @@
       <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
       <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="1" />
       <option name="BLANK_LINES_BEFORE_IMPORTS" value="0" />
+      <option name="BLANK_LINES_AFTER_IMPORTS" value="0" />
       <option name="BLANK_LINES_AROUND_METHOD_IN_INTERFACE" value="0" />
       <option name="WHILE_ON_NEW_LINE" value="true" />
       <option name="INDENT_CASE_FROM_SWITCH" value="false" />
