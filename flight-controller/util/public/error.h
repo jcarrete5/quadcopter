@@ -1,5 +1,5 @@
-#ifndef FLIGHT_CONTROLLER_ERROR_H
-#define FLIGHT_CONTROLLER_ERROR_H
+#ifndef FLIGHT_CONTROLLER_UTIL_PUBLIC_ERROR_H
+#define FLIGHT_CONTROLLER_UTIL_PUBLIC_ERROR_H
 
 #include <system_error>
 #include <cerrno>
@@ -40,4 +40,4 @@ inline auto check_pthread_call(std::signed_integral auto return_value)
    return return_value;
 }
 
-#endif  // FLIGHT_CONTROLLER_ERROR_H
+#endif  // FLIGHT_CONTROLLER_UTIL_PUBLIC_ERROR_H

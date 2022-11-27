@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include "file-descriptor.h"
-#include "utils/error.h"
+#include "error.h"
 
 /**
  * @brief Open a new file descriptor.
