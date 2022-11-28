@@ -1,12 +1,11 @@
 #include <iostream>
 
-#include "driver/mpu6050.h"
+#include "mpu6050.h"
+#include "i2c-device.h"
 
 int main()
 {
-    MPU6050 mpu{MPU6050::Config{}};
-    for (int i = 0; i < 1000; ++i) {
-        std::cout << mpu.pop_sample() << '\n';
-    }
+    using namespace driver::i2c;
+    std::unique_ptr<Device> dev = create_device(12);
     return 0;
 }
