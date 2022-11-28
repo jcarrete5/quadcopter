@@ -45,6 +45,9 @@
         <rule entity="GLOBAL_VARIABLE,PARAMETER,LOCAL_VARIABLE" visibility="ANY" specifier="ANY" prefix="" style="SNAKE_CASE" suffix="" />
       </rules>
     </Objective-C-extensions>
+    <clangFormatSettings>
+      <option name="ENABLED" value="true" />
+    </clangFormatSettings>
     <codeStyleSettings language="CMake">
       <indentOptions>
         <option name="CONTINUATION_INDENT_SIZE" value="4" />
