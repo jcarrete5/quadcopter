@@ -1,11 +1,11 @@
 #include <iostream>
-#include <iomanip>
 
-#include "driver/mpu6050.h"
+#include "mpu6050.h"
+#include "i2c-device.h"
 
 int main()
 {
-    MPU6050 mpu{"/dev/i2c-1"};
-    std::cout << "WHO_AM_I -> " << std::showbase << std::setbase(16) << mpu.who_am_i() << '\n';
+    using namespace driver::i2c;
+    std::unique_ptr<Device> dev = create_device(12);
     return 0;
 }
