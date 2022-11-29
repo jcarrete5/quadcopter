@@ -4,6 +4,8 @@
 #include <iostream>
 #include <utility>
 
+using namespace util;
+
 Defer::Defer(std::function<void()> callback)
     : callback(std::move(callback))
 {
