@@ -24,7 +24,7 @@ LinuxDevice::LinuxDevice(std::uint16_t address)
       messages{}
 {
     unsigned long funcs{};
-    check_syscall(ioctl(bus_fd, I2C_FUNCS, &funcs));
+    util::check_syscall(ioctl(bus_fd, I2C_FUNCS, &funcs));
 
     // Need I2C transfer functionality
     if ((funcs & I2C_FUNC_I2C) == 0) {
@@ -96,7 +96,7 @@ void LinuxDevice::transmit()
         .nmsgs = messages.size(),
     };
 
-    check_syscall(ioctl(bus_fd, I2C_RDWR, &i2c_data));
+    util::check_syscall(ioctl(bus_fd, I2C_RDWR, &i2c_data));
 
     for (auto& message_buffer : message_buffers) {
         if (message_buffer.direction != MessageBuffer::Direction::read) {

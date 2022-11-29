@@ -7,6 +7,8 @@
 #include "file-descriptor.h"
 #include "error.h"
 
+using namespace util;
+
 /**
  * @brief Open a new file descriptor.
  *

@@ -50,7 +50,7 @@ namespace driver::i2c {
         std::uint16_t address;
 
         /// I2C bus file descriptor.
-        FileDescriptor bus_fd;
+        util::FileDescriptor bus_fd;
 
         State state;
         std::vector<MessageBuffer> message_buffers;
