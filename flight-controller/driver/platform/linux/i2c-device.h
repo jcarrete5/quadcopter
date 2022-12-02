@@ -36,8 +36,8 @@ namespace driver::i2c {
 
             explicit MessageBuffer(Direction direction, i2c_msg &i2c_message);
 
-            void append(std::uint8_t data);
-            void append(std::uint8_t* data);
+            void append_write(std::uint8_t data);
+            void append_read(std::uint8_t* data);
         };
 
         enum class State {

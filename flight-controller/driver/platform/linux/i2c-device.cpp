@@ -56,7 +56,7 @@ void LinuxDevice::read(uint8_t& data)
         throw std::logic_error{"state not implemented"};
     }
 
-    message_buffers.back().append(&data);
+    message_buffers.back().append_read(&data);
 
     state = State::reading;
 }
@@ -84,7 +84,7 @@ void LinuxDevice::write(uint8_t data)
         throw std::logic_error{"state not implemented"};
     }
 
-    message_buffers.back().append(data);
+    message_buffers.back().append_write(data);
 
     state = State::writing;
 }
@@ -129,13 +129,13 @@ LinuxDevice::MessageBuffer::MessageBuffer(
     message->buf = buffer.data();
 }
 
-void LinuxDevice::MessageBuffer::append(std::uint8_t data)
+void LinuxDevice::MessageBuffer::append_write(std::uint8_t data)
 {
     buffer.push_back(data);
     ++message->len;
 }
 
-void LinuxDevice::MessageBuffer::append(std::uint8_t* data)
+void LinuxDevice::MessageBuffer::append_read(std::uint8_t* data)
 {
     buffer.push_back(0);
     out_buffer.push_back(data);
