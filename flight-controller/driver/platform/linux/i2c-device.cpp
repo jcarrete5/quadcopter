@@ -146,5 +146,5 @@ bool LinuxDevice::has_required_functionality() const
     util::check_syscall(ioctl(bus_fd, I2C_FUNCS, &funcs));
 
     // I2C_FUNC_I2C function is required in order to use I2C_RDWR ioctl function
-    return (funcs & I2C_FUNC_I2C) == 0;
+    return (funcs & I2C_FUNC_I2C) != 0;
 }
