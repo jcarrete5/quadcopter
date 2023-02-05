@@ -2,31 +2,19 @@ project(flight-controller
     VERSION 0.1.0
     LANGUAGES CXX)
 
+include(dependencies)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+declare_flight_controller_dependencies()
 find_package(spdlog 1.8.1 REQUIRED)
 find_package(Boost 1.74.0 REQUIRED)
 
-if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL Linux)
-    find_package(PkgConfig 0.29.2 REQUIRED)
-    pkg_check_modules(gpiod REQUIRED libgpiodcxx>=1.6.2 IMPORTED_TARGET)
-endif ()
+add_compile_options(-Wall -Wextra -Wpedantic)
 
-add_library(util
-    util/defer.cpp
-    "$<$<PLATFORM_ID:Linux,Darwin>:util/platform/posix/file-descriptor.cpp>")
-target_include_directories(util
-    PUBLIC util/public/
-    PRIVATE util/)
-
-add_library(driver
-    "$<$<PLATFORM_ID:Linux>:driver/platform/linux/i2c-device.cpp>")
-target_include_directories(driver
-    PUBLIC driver/public
-    PRIVATE driver/)
-target_link_libraries(driver
-    PRIVATE "$<$<PLATFORM_ID:Linux>:PkgConfig::gpiod>"
-    PRIVATE util)
-target_compile_definitions(driver
-    PRIVATE "$<$<PLATFORM_ID:Linux>:I2C_BUS_PATH=\"/dev/i2c-1\">")
+add_subdirectory(util)
+add_subdirectory(driver)
 
 add_executable(flight-control
     main.cpp)
@@ -36,6 +24,6 @@ target_link_libraries(flight-control
     PRIVATE util
     PRIVATE driver)
 
-if (BUILD_TESTING)
+if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
