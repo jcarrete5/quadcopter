@@ -1,9 +1,6 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <option name="RIGHT_MARGIN" value="100" />
-    <CMakeCodeStyleSettings>
-      <option name="FORCE_COMMANDS_CASE" value="1" />
-    </CMakeCodeStyleSettings>
     <Objective-C>
       <option name="FUNCTION_BRACE_PLACEMENT" value="5" />
       <option name="FUNCTION_NON_TOP_AFTER_RETURN_TYPE_WRAP" value="0" />
