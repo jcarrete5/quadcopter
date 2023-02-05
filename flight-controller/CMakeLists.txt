@@ -18,7 +18,6 @@ target_include_directories(util
     PRIVATE util/)
 
 add_library(driver
-    driver/mpu6050.cpp
     "$<$<PLATFORM_ID:Linux>:driver/platform/linux/i2c-device.cpp>")
 target_include_directories(driver
     PUBLIC driver/public
