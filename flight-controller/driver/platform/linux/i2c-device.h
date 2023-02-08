@@ -10,6 +10,18 @@
 #include "public/i2c-device.h"
 
 namespace driver::i2c {
+    /**
+     * Implementation of an I2C device using Linux-specific APIs.
+     *
+     * This implementation requires I2C_FUNC_I2C functionality to be available
+     * for the configured I2C bus
+     * (https://www.kernel.org/doc/html/v5.15/i2c/functionality.html).
+     *
+     * @invariant The number of elements in message_buffers must be less than
+     *            2^32 and non-negative.
+     * @invariant The number of elements in a MessageBuffer must be less than
+     *            2^16 and non-negative.
+     */
     class LinuxDevice : public Device {
     public:
         explicit LinuxDevice(std::uint16_t address);

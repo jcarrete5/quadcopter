@@ -22,19 +22,6 @@ LinuxDevice::LinuxDevice(std::uint16_t address)
     assert(has_required_functionality());
 }
 
-/**
- * Read data into argument from I2C device.
- *
- * Start a new transaction if one is not already started. If the transaction
- * state is currently empty or writing, construct a new ReadMessageBuffer and
- * change to the reading state; Otherwise, append to the current
- * ReadMessageBuffer.
- *
- * data will be populated after transmit is called.
- *
- * @param[out] data Reference to populate after transmitting the complete
- *                  transaction.
- */
 void LinuxDevice::read(std::uint8_t& data)
 {
     switch (state) {
@@ -45,29 +32,17 @@ void LinuxDevice::read(std::uint8_t& data)
     case State::reading:
         break;
     default:
-        assert(false);// Device transaction state not implemented
+        assert(!"device transaction state not implemented");
     }
 
     auto& read_buffer = std::get<ReadMessageBuffer>(message_buffers.back());
+    assert(read_buffer.buffer.size() != std::numeric_limits<std::uint16_t>::max());
     read_buffer.buffer.emplace_back(0);
     read_buffer.out_buffer.emplace_back(&data);
-    assert(read_buffer.buffer.size() < std::numeric_limits<std::uint16_t>::max());
 
     state = State::reading;
 }
 
-/**
- * Write data to I2C device.
- *
- * Start a new transaction if one is not already started. If the transaction
- * state is currently empty or reading, construct a new WriteMessageBuffer and
- * change to the writing state; Otherwise, append to the current
- * WriteMessageBuffer.
- *
- * data is actually written after transmit is called.
- *
- * @param[in] data Data to write to the I2C device.
- */
 void LinuxDevice::write(std::uint8_t data)
 {
     switch (state) {
@@ -78,22 +53,18 @@ void LinuxDevice::write(std::uint8_t data)
     case State::writing:
         break;
     default:
-        assert(false);// Device transaction state not implemented
+        assert(!"device transaction state not implemented");
     }
 
     auto& write_buffer = std::get<WriteMessageBuffer>(message_buffers.back());
+    assert(write_buffer.buffer.size() != std::numeric_limits<std::uint16_t>::max());
     write_buffer.buffer.emplace_back(data);
-    assert(write_buffer.buffer.size() < std::numeric_limits<std::uint16_t>::max());
 
     state = State::writing;
 }
 
 /**
  * Send complete transaction to I2C device.
- *
- * After transmission, all data read is populated and the device transaction
- * state becomes empty.
- *
  * @post Device transaction state is empty.
  * @post message_buffers is empty.
  */
@@ -101,6 +72,7 @@ void LinuxDevice::transmit()
 {
     std::vector<i2c_msg> i2c_messages{};
     for (auto& message_buffer : message_buffers) {
+        assert(i2c_messages.size() != std::numeric_limits<std::uint32_t>::max());
         auto* buf = std::visit([](auto&& arg) { return &arg.buffer; }, message_buffer);
         i2c_messages.emplace_back(
             i2c_msg{.addr = address,
@@ -112,7 +84,7 @@ void LinuxDevice::transmit()
 
     i2c_rdwr_ioctl_data i2c_data{
         .msgs = i2c_messages.data(),
-        .nmsgs = i2c_messages.size(),
+        .nmsgs = static_cast<std::uint32_t>(i2c_messages.size()),
     };
 
     util::check_syscall(ioctl(bus_fd, I2C_RDWR, &i2c_data));
