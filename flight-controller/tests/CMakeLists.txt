@@ -7,9 +7,9 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 include(GoogleTest)
 
-add_executable(flight-controller-test
-    flight-controller-hello-test.cpp)
-target_link_libraries(flight-controller-test
-    GTest::gtest_main)
-
-gtest_discover_tests(flight-controller-test)
+add_executable(i2c-device-test
+    i2c-device-test.cpp)
+target_link_libraries(i2c-device-test
+    PRIVATE driver
+    PRIVATE GTest::gtest_main)
+gtest_discover_tests(i2c-device-test)
