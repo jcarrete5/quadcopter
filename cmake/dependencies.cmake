@@ -1,7 +1,5 @@
 # Contains definitions for declaring and managing dependencies.
 
-include_guard(DIRECTORY)
-
 include(FetchContent)
 
 # Declare FetchContent dependencies used for flight-controller
