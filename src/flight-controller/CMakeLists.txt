@@ -1,7 +1,3 @@
-project(flight-controller
-    VERSION 0.1.0
-    LANGUAGES CXX)
-
 include(dependencies)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -16,14 +12,16 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 add_subdirectory(util)
 add_subdirectory(driver)
 
-add_executable(flight-control
-    main.cpp)
-target_link_libraries(flight-control
-    PRIVATE spdlog::spdlog
-    PRIVATE Boost::boost
-    PRIVATE util
-    PRIVATE driver)
-
-if(BUILD_TESTING)
-    add_subdirectory(tests)
-endif()
+add_executable(flight-control)
+target_sources(
+    flight-control
+    PRIVATE main.cpp
+)
+target_link_libraries(
+    flight-control
+    PRIVATE
+        spdlog::spdlog
+        Boost::boost
+        util
+        driver
+)
