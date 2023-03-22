@@ -4,7 +4,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 declare_flight_controller_dependencies()
-find_package(spdlog 1.8.1 REQUIRED)
 find_package(Boost 1.74.0 REQUIRED)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
@@ -20,7 +19,6 @@ target_sources(
 target_link_libraries(
     flight-control
     PRIVATE
-        spdlog::spdlog
         Boost::boost
         util
         driver
