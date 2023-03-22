@@ -4,17 +4,11 @@
 
 using namespace driver;
 
-class I2CDeviceTest : public ::testing::Test
-{
+class I2CDeviceTest : public ::testing::Test {
 protected:
-    I2CDeviceTest()
-        : device{i2c::create_device(0x10)}
-    {}
+    I2CDeviceTest() : device{i2c::create_device(0x10)} {}
 
-    void SetUp() override
-    {
-        ASSERT_NE(device, nullptr);
-    }
+    void SetUp() override { ASSERT_NE(device, nullptr); }
 
 public:
     std::unique_ptr<i2c::Device> device;
