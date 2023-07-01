@@ -1,8 +1,12 @@
-add_library(driver)
-target_sources(
+include(QuadcopterWarnings)
+
+add_library(
     driver
-    PRIVATE i2c-device.cpp
+    i2c-device.cpp
 )
+if(PROJECT_IS_TOP_LEVEL)
+    enable_warnings(driver)
+endif()
 target_include_directories(
     driver
     PUBLIC public
@@ -13,13 +17,22 @@ target_link_libraries(
     PRIVATE util
 )
 
-# TODO: Consider conditionally including this when we want to simulate
-add_subdirectory(i2c-stub-plain)
-
 if(CMAKE_SYSTEM_NAME STREQUAL Linux)
     add_subdirectory(platform/linux)
 endif()
 
 if(BUILD_TESTING)
-    add_subdirectory(test)
+    include(GoogleTest)
+
+    add_executable(
+        test-i2c-device
+        i2c-device.test.cpp
+    )
+    target_link_libraries(
+        test-i2c-device
+        PRIVATE
+            driver
+            GTest::gtest_main
+    )
+    gtest_discover_tests(test-i2c-device)
 endif()

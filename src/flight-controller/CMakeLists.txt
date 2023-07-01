@@ -1,21 +1,12 @@
-include(dependencies)
+include(QuadcopterWarnings)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-declare_flight_controller_dependencies()
-find_package(Boost 1.74.0 REQUIRED)
-
-add_compile_options(-Wall -Wextra -Wpedantic)
-
-add_subdirectory(util)
-add_subdirectory(driver)
-
-add_executable(flight-control)
-target_sources(
+add_executable(
     flight-control
-    PRIVATE main.cpp
+    main.cpp
 )
+if(PROJECT_IS_TOP_LEVEL)
+    enable_warnings(flight-control)
+endif()
 target_link_libraries(
     flight-control
     PRIVATE
@@ -23,3 +14,6 @@ target_link_libraries(
         util
         driver
 )
+
+add_subdirectory(util)
+add_subdirectory(driver)

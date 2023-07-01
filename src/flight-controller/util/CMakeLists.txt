@@ -1,11 +1,18 @@
-include(posix)
+include(QuadcopterWarnings)
 
-add_library(util
-    defer.cpp)
-target_include_directories(util
+add_library(
+    util
+    defer.cpp
+)
+if(PROJECT_IS_TOP_LEVEL)
+    enable_warnings(util)
+endif()
+target_include_directories(
+    util
     PUBLIC public
-    PRIVATE .)
+    PRIVATE .
+)
 
-if(CMAKE_SYSTEM_NAME IN_LIST POSIX_COMPLIANT_SYSTEMS)
+if(UNIX)
     add_subdirectory(platform/posix)
 endif()

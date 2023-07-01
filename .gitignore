@@ -1,6 +1,3 @@
+# CMake
+CMakeUserPresets.json
 cmake-build-*
-build-*
-
-# clangd
-.cache
-compile_commands.json

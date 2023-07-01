@@ -4,7 +4,7 @@
 
 int main()
 {
-    using namespace driver::i2c;
-    std::unique_ptr<Device> dev = create_device(12);
+    using namespace driver;
+    auto dev = i2c::create_device(12);
     return 0;
 }
